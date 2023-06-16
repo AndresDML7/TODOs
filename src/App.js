@@ -22,7 +22,34 @@ function App() {
   ).length;
   const totalTodos = todos.length;
 
-  console.log('Los usuarios buscan todos de ' + searchValue);
+  const searchedTodos = todos.filter(
+    (todo) => {
+      
+      //Función texto sin tildes
+      const noTildes = (text) => {
+        return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      };
+
+      //Normalizando texto sin tildes y a Lower Case
+      const todoTextLC = noTildes(todo.text.toLowerCase());
+      const searchTextLC = noTildes(searchValue.toLowerCase());
+
+      //Renderizar con filtro
+      return todoTextLC.includes(searchTextLC);
+    }
+  );
+
+  const completeTodo = (text) => {
+    const todoIndex = todos.findIndex((todo) => todo.text === text);
+    const newTodos = [...todos];
+    newTodos[todoIndex].completed = !newTodos[todoIndex].completed;
+    setTodos(newTodos);
+  };
+
+  const deleteTodo = (text) => {
+    const newTodos = todos.filter((todo) => todo.text != text);
+    setTodos(newTodos);
+  };
   
   return (
     <>
@@ -36,11 +63,13 @@ function App() {
       />
 
       <TodoList>
-        {defaultTodos.map(todo => (
+        {searchedTodos.map(todo => (
           <TodoItem
             key={todo.text}
             text={todo.text}
             completed={todo.completed}
+            onComplete={() => completeTodo(todo.text)}
+            onDelete={() => deleteTodo(todo.text)}
           />
         ))}
       </TodoList>
